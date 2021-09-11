@@ -1,19 +1,20 @@
-
 package ParkinglotManagement;
+
+import javax.swing.JOptionPane;
 
 abstract class Car{
 	Time t = new Time();
 	
-	protected int year;
-	protected int month;
-	protected int day;
-	protected int time, ptime;
-	protected int minute, pminute;
+	int year;
+	int month;
+	int day;
+	int time, ptime;
+	int minute, pminute;
 	
-	protected int minsum;
-	protected int type;
+	int minsum;
+	int type;
 	
-	protected String num;
+	String num,msg;
 	
 	public Car(String n, int y, int mo, int d, int t, int mi){
 		num=n; year=y;
@@ -35,16 +36,29 @@ abstract class Car{
 	}
 	
 	public void show(int y, int m, int d, int h, int mn) {
-		System.out.print(num + "번 입차시간: " + year + "-" + month + "-" + day + " " + time + ":" + minute);
+		msg = String.format(num + "번 입차시간: " + year + "-" + month + "-" + day + " " + time + ":" + minute);		
+		JOptionPane.showMessageDialog(null, msg, "차량 정보", JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 	public void showFee(int fee, int minsum2) {
 		ptime=(minsum2-minsum)/60;
 		pminute=(minsum2-minsum)%60;
-		System.out.println("**"+num+"번 차량의 요금 합산"+"**");
-		System.out.print("주차요금: "+fee+"원");
-		System.out.printf("(주차시간 %d시간 %d분)\n",ptime,pminute);
+		msg = String.format("**"+num+"번 차량의 요금 합산"+"**");
+		JOptionPane.showMessageDialog(null, msg, "출차 완료", JOptionPane.INFORMATION_MESSAGE);
+		msg = String.format("주차요금: "+fee+"원\n주차시간: "+ptime+"시간 "+pminute+"분");
+		JOptionPane.showMessageDialog(null, msg, "출차 완료", JOptionPane.INFORMATION_MESSAGE);
 	}
+	
+	public String infotoStr(int y, int m, int d, int h, int mn) {
+		return msg = String.format(num + "번 입차시간: " + year + "-" + month + "-" + day + " " + time + ":" + minute);
+	}
+	
+	public String getTime() {
+		return year+"/"+month+"/"+day+"/"+time+"/"+minute;
+	}
+	
+	abstract String getTypestr();
+	abstract String getInfo(int y, int m, int d, int h, int mn);
 	
 	@Override 
 	public boolean equals(Object o){
@@ -75,9 +89,21 @@ class psCar extends Car{
 	}
 	
 	public void show(int y, int m, int d, int h, int mn) {
-		System.out.print("승용차 ");
 		super.show(y,m,d,h,mn);
-		System.out.println(" 배기량: "+Emission);
+		msg="차량 종류: "+getTypestr()+"\n"+getInfo(y,m,d,h,mn);
+		JOptionPane.showMessageDialog(null, msg, "차량 조회", JOptionPane.INFORMATION_MESSAGE);
+	}
+	
+	public String getTypestr() {
+		return "승용차";
+	}
+	
+	public String getInfo(int y, int m, int d, int h, int mn) {
+		return "배기량: "+ Emission;
+	}
+	
+	public String infotoStr(int y, int m, int d, int h, int mn) {
+		return msg = String.format(num + "번 입차시간: " + year + "-" + month + "-" + day + " " + time + ":" + minute);
 	}
 }
 
@@ -102,14 +128,25 @@ class ecCar extends Car{
 		return this.type;
 	}
 	
+	public String getTypestr() {
+		return "전기차";
+	}
+	
+	public String getInfo(int y, int m, int d, int h, int mn) {
+		charge=capacity+(t.makeMin(y, m, d, h, mn)-minsum)*0.5;
+		if(charge>60)
+			charge=60;
+		return "배터리량: "+charge;
+	}
+	
 	public void show(int y, int m, int d, int h, int mn) {
 		charge=capacity+(t.makeMin(y, m, d, h, mn)-minsum)*0.5;
 		if(charge>=60)
 			charge=60;
 		double chargem = charge-capacity;
-		System.out.print("전기차 ");
 		super.show(y,m,d,h,mn);
-		System.out.println(" 충전: "+charge+"KW("+chargem+"KW 충전)");
+		msg = "차량 종류: "+getTypestr()+"\n충전: "+charge+"KW("+chargem+"KW 충전)";
+		JOptionPane.showMessageDialog(null, msg, "출차 완료", JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 	@Override
@@ -119,8 +156,14 @@ class ecCar extends Car{
 			charge=60-capacity;
 		chargefee=(int)(charge/0.5)*200;
 		super.showFee(fee-chargefee, minsum2);
-		System.out.printf("충전요금: %d원(현재 충전량: %.1fKW, 충전량: %.1fKW)\n",chargefee, capacity+charge, charge);
-		System.out.println("\n총 요금: "+(fee)+"원");
+		msg = String.format("충전요금: %d원(현재 충전량: %.1fKW, 충전량: %.1fKW)\n",chargefee, capacity+charge, charge);
+		JOptionPane.showMessageDialog(null, msg, "출차 완료", JOptionPane.INFORMATION_MESSAGE);
+		msg = String.format("\n총 요금: "+(fee)+"원");
+		JOptionPane.showMessageDialog(null, msg, "출차 완료", JOptionPane.INFORMATION_MESSAGE);
+	}
+	
+	public String infotoStr(int y, int m, int d, int h, int mn) {
+		return msg = String.format(num + "번 입차시간: " + year + "-" + month + "-" + day + " " + time + ":" + minute);
 	}
 }
 
@@ -144,13 +187,25 @@ class Van extends Car{
 	}
 	
 	public void show(int y, int m, int d, int h, int mn) {
-		System.out.print("밴 ");
 		super.show(y,m,d,h,mn);
+		msg="차량 종류: "+getTypestr()+"\n"+getInfo(y,m,d,h,mn);
+		JOptionPane.showMessageDialog(null, msg, "차량 정보 조회", JOptionPane.INFORMATION_MESSAGE);
+	}
+	
+	public String getInfo(int y, int m, int d, int h, int mn) {
 		if(size==1)
-			System.out.println(" 종류: 대형");
+			return "차량 크기: 대형";
 		else if(size==2)
-			System.out.println(" 종류: 중형");
+			return "차량 크기: 중형";
 		else
-			System.out.println(" 종류: 소형");
+			return "차량 크기: 소형";
+	}
+	
+	public String getTypestr() {
+		return "밴";
+	}
+	
+	public String infotoStr(int y, int m, int d, int h, int mn) {
+		return msg = String.format(num + "번 입차시간: " + year + "-" + month + "-" + day + " " + time + ":" + minute);
 	}
 }

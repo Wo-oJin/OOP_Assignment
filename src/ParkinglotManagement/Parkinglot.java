@@ -6,7 +6,9 @@ public class Parkinglot {
 	private Car carList[];
 	private ArrayList<Car> leaveCarList;
 	private int income[][][];
-	private int cnt;
+	private int cnt=0,max=0;
+	int lasttime=0, lastmove=0;
+	int beforeyear=0, beforemonth=0, beforeday=0;
 	
 	public Parkinglot() {
 		income=new int[10000][13][32];
@@ -21,6 +23,8 @@ public class Parkinglot {
 
 	void setMax(int max) {
 		this.carList=new Car[max];
+		this.max=max;
+		carList=new Car[max];
 	}
 	
 	void setleaveList(Car car) {
@@ -180,5 +184,9 @@ public class Parkinglot {
 		for(int i=index;i<cnt-1;i++)
 			carList[i]=carList[i+1];
 		cnt--;
+	}
+
+	public int getMax() {
+		return max;
 	}
 }
